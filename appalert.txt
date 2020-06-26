@@ -1,0 +1,57 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "MetricName": {
+            "defaultValue": "App Insights Failed1",
+            "type": "String"
+        },
+        "AppInightsName": {
+            "defaultValue": "corewebapp20200414144905",
+            "type": "String"
+        },
+
+        "AppInightsResourceGroupName": {
+            "defaultValue": "corewebapp",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "microsoft.insights/metricAlerts",
+            "apiVersion": "2018-03-01",
+            "name": "[parameters('MetricName')]",
+            "location": "global",
+            "properties": {
+                "severity": 3,
+                "enabled": true,
+                "scopes": [
+                   "[resourceId(parameters('AppInightsResourceGroupName'), 'microsoft.insights/components/', parameters('AppInightsName'))]"
+                ],
+                "evaluationFrequency": "PT1M",
+                "windowSize": "PT5M",
+                "criteria": {
+                    "allOf": [
+                        {
+                            "threshold": 1,
+                            "name": "Metric1",
+                            "metricNamespace": "microsoft.insights/components",
+                            "metricName": "requests/failed",
+                            "dimensions": [],
+                            "operator": "GreaterThan",
+                            "timeAggregation": "Count",
+                            "criterionType": "StaticThresholdCriterion"
+                        }
+                    ],
+                    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+                },
+                "autoMitigate": true,
+                "targetResourceType": "microsoft.insights/components",
+                "targetResourceRegion": "westeurope",
+                "actions": [],
+                "description": "[parameters('MetricName')]"
+            }
+        }
+    ]
+}
